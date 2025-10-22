@@ -1,0 +1,1000 @@
+package com.scb.axessspringboottraining.config;
+
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.JwtException;
+import io.jsonwebtoken.SignatureAlgorithm;
+import io.jsonwebtoken.security.Keys;
+import org.springframework.stereotype.Component;
+
+import javax.crypto.SecretKey;
+import java.nio.charset.StandardCharsets;
+import java.util.Date;
+
+@Component
+public class JwtUtil {
+
+    // Secret key and expiration time
+    private static final String SECRET = "mysecretkeymysecretkeymysecretkey12"; // must be at least 32 bytes
+    private static final long EXPIRATION_TIME = 86400000; // 1 day in milliseconds
+
+    // Generate the signing key
+    private final SecretKey secretKey = Keys.hmacShaKeyFor(SECRET.getBytes(StandardCharsets.UTF_8));
+
+    /**
+     * Generate JWT token with email and role.
+     */
+    public String generateToken(String email, String role) {
+        return Jwts.builder()
+                .setSubject(email)
+                .claim("role", role)
+                .setIssuedAt(new Date())
+                .setExpiration(new Date(System.currentTimeMillis() + EXPIRATION_TIME))
+                .signWith(secretKey, SignatureAlgorithm.HS256)
+                .compact();
+    }
+
+    /**
+     * Validate the JWT token.
+     */
+    public boolean validateToken(String token) {
+        try {
+            Jwts.parserBuilder()
+                    .setSigningKey(secretKey)
+                    .build()
+                    .parseClaimsJws(token);
+            return true;
+        } catch (JwtException | IllegalArgumentException e) {
+            System.out.println("⚠️ Invalid JWT Token: " + e.getMessage());
+            return false;
+        }
+    }
+
+    /**
+     * Extract email from token.
+     */
+    public String extractEmail(String token) {
+        return getClaims(token).getSubject();
+    }
+
+    /**
+     * Extract role from token.
+     */
+    public String extractRole(String token) {
+        return (String) getClaims(token).get("role");
+    }
+
+    /**
+     * Extract claims (payload data) from token.
+     */
+    private Claims getClaims(String token) {
+        return Jwts.parserBuilder()
+                .setSigningKey(secretKey)
+                .build()
+                .parseClaimsJws(token)
+                .getBody();
+    }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+package com.scb.axessspringboottraining.controller;
+
+import com.scb.axessspringboottraining.dto.ApiResponse;
+import com.scb.axessspringboottraining.dto.LoginRequest;
+import com.scb.axessspringboottraining.dto.SignupRequest;
+import com.scb.axessspringboottraining.service.UserService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.*;
+
+@RestController
+@RequestMapping("/api/auth")
+@CrossOrigin(origins = "*") // Allow requests from any frontend (React, Postman, etc.)
+public class AuthController {
+
+    private final UserService userService;
+
+    @Autowired
+    public AuthController(UserService userService) {
+        this.userService = userService;
+    }
+
+    /**
+     * Endpoint for user signup
+     */
+    @PostMapping("/signup")
+    public ApiResponse registerUser(@RequestBody SignupRequest request) {
+        return userService.registerUser(request);
+    }
+
+    /**
+     * Endpoint for user login
+     */
+    @PostMapping("/login")
+    public ApiResponse loginUser(@RequestBody LoginRequest request) {
+        return userService.loginUser(request);
+    }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+package com.scb.axessspringboottraining.dto;
+
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+/**
+ * Common API Response DTO
+ * Used to send messages and status for signup, login, etc.
+ */
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+public class ApiResponse {
+    private String message;
+    private boolean success;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+package com.scb.axessspringboottraining.dto;
+
+import lombok.Data;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
+
+/**
+ * DTO for user login requests.
+ * Supports CUSTOMER, MAKER, and CHECKER roles.
+ */
+@Data
+public class LoginRequest {
+
+    @Email(message = "Invalid email format")
+    @NotBlank(message = "Email is required")
+    private String email;
+
+    @NotBlank(message = "Password is required")
+    private String password;
+
+    @NotBlank(message = "Role is required")  // CUSTOMER / MAKER / CHECKER
+    private String role;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+package com.scb.axessspringboottraining.dto;
+
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
+
+/**
+ * DTO for user registration (Signup)
+ * Used by UserServiceImpl.registerUser()
+ */
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+public class SignupRequest {
+
+    @NotBlank(message = "First name is required")
+    private String firstName;
+
+    @NotBlank(message = "Last name is required")
+    private String lastName;
+
+    @Email(message = "Invalid email format")
+    @NotBlank(message = "Email is required")
+    private String email;
+
+    @NotBlank(message = "Phone number is required")
+    @Size(min = 10, max = 15, message = "Phone number must be between 10 to 15 digits")
+    private String phoneNumber;
+
+    @NotBlank(message = "Password is required")
+    @Size(min = 6, message = "Password must be at least 6 characters long")
+    private String password;
+
+    @NotBlank(message = "Confirm password is required")
+    private String confirmPassword;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+package com.scb.axessspringboottraining.entities;
+
+import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+/**
+ * Entity representing a user in the system.
+ * Can be a CUSTOMER, MAKER, or CHECKER.
+ */
+@Entity
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+@Table(name = "users")
+public class User {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @Column(nullable = false)
+    private String firstName;
+
+    @Column(nullable = false)
+    private String lastName;
+
+    @Column(unique = true, nullable = false)
+    private String email;
+
+    @Column(nullable = false)
+    private String phoneNumber;
+
+    @Column(nullable = false)
+    private String password;
+
+    @Column(nullable = false)
+    private String role; // CUSTOMER / MAKER / CHECKER
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+package com.scb.axessspringboottraining.repository;
+
+import com.scb.axessspringboottraining.entities.User;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
+
+import java.util.Optional;
+
+/**
+ * Repository interface for User entity.
+ * Provides methods for user-related database operations.
+ */
+@Repository
+public interface UserRepository extends JpaRepository<User, Long> {
+
+    // ✅ Check if a user already exists by email
+    boolean existsByEmail(String email);
+
+    // ✅ Find a user by email
+    Optional<User> findByEmail(String email);
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+package com.scb.axessspringboottraining.service;
+
+import com.scb.axessspringboottraining.dto.ApiResponse;
+import com.scb.axessspringboottraining.dto.LoginRequest;
+import com.scb.axessspringboottraining.dto.SignupRequest;
+
+/**
+ * Service interface for handling user registration and login operations.
+ * Implemented by UserServiceImpl.
+ */
+public interface UserService {
+
+    /**
+     * Registers a new user (Customer by default).
+     * @param request contains user's signup information.
+     * @return ApiResponse indicating success or failure.
+     */
+    ApiResponse registerUser(SignupRequest request);
+
+    /**
+     * Authenticates a user (Customer, Maker, or Checker).
+     * @param request contains login credentials.
+     * @return ApiResponse with login result message.
+     */
+    ApiResponse loginUser(LoginRequest request);
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+package com.scb.axessspringboottraining.service.impl;
+
+import com.scb.axessspringboottraining.dto.ApiResponse;
+import com.scb.axessspringboottraining.dto.LoginRequest;
+import com.scb.axessspringboottraining.dto.SignupRequest;
+import com.scb.axessspringboottraining.entities.User;
+import com.scb.axessspringboottraining.repository.UserRepository;
+import com.scb.axessspringboottraining.service.UserService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.stereotype.Service;
+
+import java.util.Optional;
+
+/**
+ * Implementation of UserService.
+ * Handles registration and login for Customers, Makers, and Checkers.
+ */
+@Service
+public class UserServiceImpl implements UserService {
+
+    private final UserRepository userRepository;
+    private final BCryptPasswordEncoder passwordEncoder;
+
+    @Autowired
+    public UserServiceImpl(UserRepository userRepository) {
+        this.userRepository = userRepository;
+        this.passwordEncoder = new BCryptPasswordEncoder();
+    }
+
+    /**
+     * Registers a new user with the default role as CUSTOMER.
+     */
+    @Override
+    public ApiResponse registerUser(SignupRequest request) {
+        // ✅ Check if email already exists
+        if (userRepository.existsByEmail(request.getEmail())) {
+            return new ApiResponse("❌ Email already exists!", false);
+        }
+
+        // ✅ Validate password confirmation
+        if (!request.getPassword().equals(request.getConfirmPassword())) {
+            return new ApiResponse("❌ Passwords do not match!", false);
+        }
+
+        // ✅ Create new User entity
+        User user = new User();
+        user.setFirstName(request.getFirstName());
+        user.setLastName(request.getLastName());
+        user.setEmail(request.getEmail());
+        user.setPhoneNumber(request.getPhoneNumber());
+        user.setPassword(passwordEncoder.encode(request.getPassword()));
+        user.setRole("CUSTOMER"); // Default role for signup
+
+        // ✅ Save user to DB
+        userRepository.save(user);
+
+        return new ApiResponse("✅ User registered successfully!", true);
+    }
+
+    /**
+     * Logs in an existing user (Customer, Maker, or Checker).
+     */
+    @Override
+    public ApiResponse loginUser(LoginRequest request) {
+        Optional<User> userOpt = userRepository.findByEmail(request.getEmail());
+
+        if (userOpt.isEmpty()) {
+            return new ApiResponse("❌ Invalid email or password!", false);
+        }
+
+        User user = userOpt.get();
+
+        // ✅ Validate password
+        if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
+            return new ApiResponse("❌ Invalid email or password!", false);
+        }
+
+        // ✅ Verify role match
+        if (!user.getRole().equalsIgnoreCase(request.getRole())) {
+            return new ApiResponse("❌ Role mismatch! Please select the correct role.", false);
+        }
+
+        // ✅ Role-based response
+        String message;
+        switch (user.getRole().toUpperCase()) {
+            case "CUSTOMER":
+                message = "✅ Customer login successful! Redirect to Customer Dashboard.";
+                break;
+            case "MAKER":
+                message = "✅ Maker login successful! Redirect to Maker Dashboard.";
+                break;
+            case "CHECKER":
+                message = "✅ Checker login successful! Redirect to Checker Dashboard.";
+                break;
+            default:
+                message = "✅ Login successful!";
+        }
+
+        return new ApiResponse(message, true);
+    }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+package com.scb.axessspringboottraining;
+
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+
+/**
+ * Main entry point for the Spring Boot application.
+ */
+@SpringBootApplication
+public class DemoApplication {
+
+    public static void main(String[] args) {
+        SpringApplication.run(DemoApplication.class, args);
+        System.out.println("🚀 Application Started Successfully! Access Swagger UI at: http://localhost:8080/swagger-ui/index.html");
+    }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-parent</artifactId>
+        <version>3.3.2</version>
+        <relativePath/>
+    </parent>
+
+    <groupId>com.example</groupId>
+    <artifactId>demo</artifactId>
+    <version>0.0.1-SNAPSHOT</version>
+    <name>demo</name>
+    <description>Demo project for Spring Boot (Login and Signup)</description>
+
+    <properties>
+        <java.version>21</java.version>
+        <jjwt.version>0.11.5</jjwt.version>
+    </properties>
+
+    <dependencies>
+
+        <!-- ✅ Spring Boot Web -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-web</artifactId>
+        </dependency>
+
+        <!-- ✅ Spring Data JPA -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-data-jpa</artifactId>
+        </dependency>
+
+        <!-- ✅ PostgreSQL -->
+        <dependency>
+            <groupId>org.postgresql</groupId>
+            <artifactId>postgresql</artifactId>
+            <scope>runtime</scope>
+        </dependency>
+
+        <!-- ✅ Lombok -->
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <version>1.18.32</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <!-- ✅ Swagger / OpenAPI -->
+        <dependency>
+            <groupId>org.springdoc</groupId>
+            <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
+            <version>2.5.0</version>
+        </dependency>
+
+        <!-- ✅ Spring Security Crypto (for BCryptPasswordEncoder) -->
+        <dependency>
+            <groupId>org.springframework.security</groupId>
+            <artifactId>spring-security-crypto</artifactId>
+            <version>6.3.1</version>
+        </dependency>
+
+        <!-- ✅ JWT (JSON Web Token) dependencies -->
+        <dependency>
+            <groupId>io.jsonwebtoken</groupId>
+            <artifactId>jjwt-api</artifactId>
+            <version>${jjwt.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>io.jsonwebtoken</groupId>
+            <artifactId>jjwt-impl</artifactId>
+            <version>${jjwt.version}</version>
+            <scope>runtime</scope>
+        </dependency>
+        <dependency>
+            <groupId>io.jsonwebtoken</groupId>
+            <artifactId>jjwt-jackson</artifactId>
+            <version>${jjwt.version}</version>
+            <scope>runtime</scope>
+        </dependency>
+
+        <!-- ✅ Test -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+            </plugin>
+        </plugins>
+    </build>
+
+</project>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-parent</artifactId>
+        <version>3.3.2</version>
+        <relativePath/>
+    </parent>
+
+    <groupId>com.scb</groupId>
+    <artifactId>axess-springboot-training</artifactId>
+    <version>0.0.1-SNAPSHOT</version>
+    <name>axess-springboot-training</name>
+    <description>Spring Boot Training Project with JWT, PostgreSQL, and Role-based Auth</description>
+
+    <properties>
+        <java.version>17</java.version>
+        <jjwt.version>0.11.5</jjwt.version>
+    </properties>
+
+    <dependencies>
+
+        <!-- ✅ Spring Boot Web (REST APIs, Controllers) -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-web</artifactId>
+        </dependency>
+
+        <!-- ✅ Spring Data JPA (Hibernate ORM) -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-data-jpa</artifactId>
+        </dependency>
+
+        <!-- ✅ Spring Security (for BCryptPasswordEncoder) -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-security</artifactId>
+        </dependency>
+
+        <!-- ✅ PostgreSQL Database Driver -->
+        <dependency>
+            <groupId>org.postgresql</groupId>
+            <artifactId>postgresql</artifactId>
+            <scope>runtime</scope>
+        </dependency>
+
+        <!-- ✅ Lombok (auto-generates getters, setters, constructors) -->
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <version>1.18.32</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <!-- ✅ Swagger UI (for API documentation) -->
+        <dependency>
+            <groupId>org.springdoc</groupId>
+            <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
+            <version>2.5.0</version>
+        </dependency>
+
+        <!-- ✅ JWT (for token generation and validation) -->
+        <dependency>
+            <groupId>io.jsonwebtoken</groupId>
+            <artifactId>jjwt-api</artifactId>
+            <version>${jjwt.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>io.jsonwebtoken</groupId>
+            <artifactId>jjwt-impl</artifactId>
+            <version>${jjwt.version}</version>
+            <scope>runtime</scope>
+        </dependency>
+        <dependency>
+            <groupId>io.jsonwebtoken</groupId>
+            <artifactId>jjwt-jackson</artifactId>
+            <version>${jjwt.version}</version>
+            <scope>runtime</scope>
+        </dependency>
+
+        <!-- ✅ Spring Boot Test (JUnit, MockMvc, etc.) -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+
+    </dependencies>
+
+    <build>
+        <plugins>
+            <!-- ✅ Spring Boot Maven Plugin -->
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+            </plugin>
+        </plugins>
+    </build>
+
+</project>
