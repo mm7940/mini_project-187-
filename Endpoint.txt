@@ -1,0 +1,756 @@
+package com.example.demo.config;
+
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.JwtException;
+import io.jsonwebtoken.SignatureAlgorithm;
+import io.jsonwebtoken.security.Keys;
+import org.springframework.stereotype.Component;
+
+import javax.crypto.SecretKey;
+import java.nio.charset.StandardCharsets;
+import java.util.Date;
+
+@Component
+public class JwtUtil {
+
+
+    private static final String SECRET = "mysecretkeymysecretkeymysecretkey12";
+    private static final long EXPIRATION_TIME = 86400000; // 1 day in milliseconds
+
+    private final SecretKey secretKey = Keys.hmacShaKeyFor(SECRET.getBytes(StandardCharsets.UTF_8));
+
+
+    public String generateToken(String email, String role) {
+        return Jwts.builder()
+                .setSubject(email)
+                .claim("role", role)
+                .setIssuedAt(new Date())
+                .setExpiration(new Date(System.currentTimeMillis() + EXPIRATION_TIME))
+                .signWith(secretKey, SignatureAlgorithm.HS256)
+                .compact();
+    }
+
+
+    public boolean validateToken(String token) {
+        try {
+            Jwts.parserBuilder()
+                    .setSigningKey(secretKey)
+                    .build()
+                    .parseClaimsJws(token);
+            return true;
+        } catch (JwtException | IllegalArgumentException e) {
+            System.out.println("Invalid JWT: " + e.getMessage());
+            return false;
+        }
+    }
+
+
+    public String extractEmail(String token) {
+        return getClaims(token).getSubject();
+    }
+
+
+    public String extractRole(String token) {
+        return (String) getClaims(token).get("role");
+    }
+
+
+    private Claims getClaims(String token) {
+        return Jwts.parserBuilder()
+                .setSigningKey(secretKey)
+                .build()
+                .parseClaimsJws(token)
+                .getBody();
+    }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+package com.example.demo.controller;
+
+import com.example.demo.dto.ApiResponse;
+import com.example.demo.dto.LoginRequest;
+import com.example.demo.dto.SignupRequest;
+import com.example.demo.service.UserService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.*;
+
+@RestController
+@RequestMapping("/api/auth")
+@CrossOrigin(origins = "*") // allow frontend or Postman access
+public class AuthController {
+
+    private final UserService userService;
+
+    @Autowired
+    public AuthController(UserService userService) {
+        this.userService = userService;
+    }
+
+    @PostMapping("/signup")
+    public ApiResponse registerUser(@RequestBody SignupRequest request) {
+        return userService.registerUser(request);
+    }
+
+    @PostMapping("/login")
+    public ApiResponse loginUser(@RequestBody LoginRequest request) {
+        return userService.loginUser(request);
+    }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+package com.example.demo.dto;
+
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+public class ApiResponse {
+    private String message;
+    private boolean success;
+
+    public String getMessage() {
+        return message;
+    }
+
+    public void setMessage(String message) {
+        this.message = message;
+    }
+
+    public boolean isSuccess() {
+        return success;
+    }
+
+    public void setSuccess(boolean success) {
+        this.success = success;
+    }
+
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+package com.example.demo.dto;
+
+import lombok.Data;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
+
+@Data
+public class LoginRequest {
+
+    @Email(message = "Invalid email format")
+    @NotBlank(message = "Email is required")
+    private String email;
+
+    @NotBlank(message = "Password is required")
+    private String password;
+
+    @NotBlank(message = "Role is required")  // CUSTOMER / MAKER / CHECKER
+    private String role;
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
+    public String getRole() {
+        return role;
+    }
+
+    public void setRole(String role) {
+        this.role = role;
+    }
+
+    public LoginRequest(String email, String password, String role) {
+        this.email = email;
+        this.password = password;
+        this.role = role;
+    }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+package com.example.demo.dto;
+
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
+
+/**
+ * DTO for user registration (Signup)
+ * Used by UserServiceImpl.registerUser()
+ */
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+public class SignupRequest {
+
+    @NotBlank(message = "First name is required")
+    private String firstName;
+
+    @NotBlank(message = "Last name is required")
+    private String lastName;
+
+    @Email(message = "Invalid email format")
+    @NotBlank(message = "Email is required")
+    private String email;
+
+    @NotBlank(message = "Phone number is required")
+    @Size(min = 10, max = 15, message = "Phone number must be between 10 to 15 digits")
+    private String phoneNumber;
+
+    @NotBlank(message = "Password is required")
+    @Size(min = 6, message = "Password must be at least 6 characters long")
+    private String password;
+
+    @NotBlank(message = "Confirm password is required")
+    private String confirmPassword;
+
+    public String getFirstName() {
+        return firstName;
+    }
+
+    public void setFirstName(String firstName) {
+        this.firstName = firstName;
+    }
+
+    public String getLastName() {
+        return lastName;
+    }
+
+    public void setLastName(String lastName) {
+        this.lastName = lastName;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    public String getPhoneNumber() {
+        return phoneNumber;
+    }
+
+    public void setPhoneNumber(String phoneNumber) {
+        this.phoneNumber = phoneNumber;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
+    public String getConfirmPassword() {
+        return confirmPassword;
+    }
+
+    public void setConfirmPassword(String confirmPassword) {
+        this.confirmPassword = confirmPassword;
+    }
+
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+package com.example.demo.entities;
+
+import jakarta.persistence.*;
+import lombok.Data;
+
+@Entity
+@Data
+@Table(name = "users")
+public class User {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    private String firstName;
+    private String lastName;
+    private String email;
+    private String phoneNumber;
+    private String password;
+    private String role; // CUSTOMER / MAKER / CHECKER
+
+    public User() {
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public String getFirstName() {
+        return firstName;
+    }
+
+    public void setFirstName(String firstName) {
+        this.firstName = firstName;
+    }
+
+    public String getLastName() {
+        return lastName;
+    }
+
+    public void setLastName(String lastName) {
+        this.lastName = lastName;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    public String getPhoneNumber() {
+        return phoneNumber;
+    }
+
+    public void setPhoneNumber(String phoneNumber) {
+        this.phoneNumber = phoneNumber;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
+    public String getRole() {
+        return role;
+    }
+
+    public void setRole(String role) {
+        this.role = role;
+    }
+
+    public User(String role, String password, String phoneNumber, String email, String lastName, String firstName, Long id) {
+        this.role = role;
+        this.password = password;
+        this.phoneNumber = phoneNumber;
+        this.email = email;
+        this.lastName = lastName;
+        this.firstName = firstName;
+        this.id = id;
+    }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+package com.example.demo.repository;
+
+import com.example.demo.entities.User;
+import org.springframework.data.jpa.repository.JpaRepository;
+
+import java.util.Optional;
+
+public interface UserRepository extends JpaRepository<User, Long> {
+    boolean existsByEmail(String email);
+    Optional<User> findByEmail(String email);
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+package com.example.demo.service;
+
+import com.example.demo.dto.LoginRequest;
+import com.example.demo.dto.SignupRequest;
+import com.example.demo.dto.ApiResponse;
+
+public interface UserService {
+    ApiResponse registerUser(SignupRequest request);
+    ApiResponse loginUser(LoginRequest request);
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+package com.example.demo.service;
+
+import com.example.demo.dto.ApiResponse;
+import com.example.demo.dto.LoginRequest;
+import com.example.demo.dto.SignupRequest;
+import com.example.demo.entities.User;
+import com.example.demo.repository.UserRepository;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.stereotype.Service;
+
+import java.util.Optional;
+
+@Service
+public class UserServiceImpl implements UserService {
+
+    private final UserRepository userRepository;
+    private final BCryptPasswordEncoder passwordEncoder;
+
+    @Autowired
+    public UserServiceImpl(UserRepository userRepository) {
+        this.userRepository = userRepository;
+        this.passwordEncoder = new BCryptPasswordEncoder();
+    }
+
+
+    @Override
+    public ApiResponse registerUser(SignupRequest request) {
+        // Check if email already exists
+        if (userRepository.existsByEmail(request.getEmail())) {
+            return new ApiResponse("Email already exists!", false);
+        }
+
+        // Validate password confirmation
+        if (!request.getPassword().equals(request.getConfirmPassword())) {
+            return new ApiResponse("Passwords do not match!", false);
+        }
+
+        // Create new User entity
+        User user = new User();
+        user.setFirstName(request.getFirstName());
+        user.setLastName(request.getLastName());
+        user.setEmail(request.getEmail());
+        user.setPhoneNumber(request.getPhoneNumber());
+        user.setPassword(passwordEncoder.encode(request.getPassword()));
+
+        // Default role
+        user.setRole("CUSTOMER");
+
+        // Save user to DB
+        userRepository.save(user);
+
+        return new ApiResponse("User registered successfully!", true);
+    }
+
+
+    @Override
+    public ApiResponse loginUser(LoginRequest request) {
+        Optional<User> userOpt = userRepository.findByEmail(request.getEmail());
+
+        if (userOpt.isEmpty()) {
+            return new ApiResponse("Invalid email or password!", false);
+        }
+
+        User user = userOpt.get();
+
+        if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
+            return new ApiResponse("Invalid email or password!", false);
+        }
+
+        // Role-based login messages
+        String message;
+        switch (user.getRole().toUpperCase()) {
+            case "CUSTOMER":
+                message = "Customer login successful! Redirect to Customer Dashboard.";
+                break;
+            case "MAKER":
+                message = "Maker login successful! Redirect to Maker Dashboard.";
+                break;
+            case "CHECKER":
+                message = "Checker login successful! Redirect to Checker Dashboard.";
+                break;
+            default:
+                message = "Login successful!";
+        }
+
+        return new ApiResponse(message, true);
+    }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+package com.example.demo;
+
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+
+@SpringBootApplication
+public class DemoApplication {
+    public static void main(String[] args) {
+        SpringApplication.run(DemoApplication.class, args);
+    }
+}
