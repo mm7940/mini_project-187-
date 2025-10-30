@@ -1,0 +1,1916 @@
+import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import ScImage1 from "../Images/ResetPass.png"; 
+import "./ForgotPasswordPage.css";
+
+function ForgotPasswordPage() {
+  const navigate = useNavigate();
+
+  const [formData, setFormData] = useState({
+    token: "",
+    newPassword: "",
+  });
+  const [message, setMessage] = useState("");
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData({ ...formData, [name]: value });
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setMessage("");
+
+    try {
+      const response = await fetch("http://localhost:8080/api/auth/reset-password", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(formData),
+      });
+
+      if (response.ok) {
+        setMessage("✅ Password reset successfully! Redirecting to login...");
+        setTimeout(() => navigate("/login"), 2000);
+      } else {
+        const data = await response.json();
+        setMessage(data.message || "❌ Failed to reset password.");
+      }
+    } catch (error) {
+      setMessage("⚠️ Server error. Please try again later.");
+    }
+  };
+
+  return (
+    <div className="auth-page forgot-page">
+      <div className="auth-container">
+        {/* ===== IMAGE SECTION ===== */}
+        <div className="auth-image-section">
+          <img
+            src={ScImage1}
+            alt="Standard Chartered Bank"
+            className="auth-image"
+          />
+        </div>
+
+        {/* ===== FORM SECTION ===== */}
+        <div className="auth-form-section">
+          <div className="auth-header">
+            <h1>Reset Your Password</h1>
+            <p>Enter your verification token and your new password below.</p>
+            <button className="back-btn" onClick={() => navigate("/")}>
+              ← Back to Home
+            </button>
+          </div>
+
+          <form onSubmit={handleSubmit} className="auth-form">
+            <div className="form-group">
+              <label htmlFor="token">Verification Token</label>
+              <input
+                type="text"
+                id="token"
+                name="token"
+                placeholder="Enter the token sent to your email"
+                value={formData.token}
+                onChange={handleChange}
+                required
+              />
+            </div>
+
+            <div className="form-group">
+              <label htmlFor="newPassword">New Password</label>
+              <input
+                type="password"
+                id="newPassword"
+                name="newPassword"
+                placeholder="Enter your new password"
+                value={formData.newPassword}
+                onChange={handleChange}
+                required
+              />
+            </div>
+
+            <button type="submit" className="submit-btn">
+              🔒 Reset Password
+            </button>
+          </form>
+
+          {message && <p className="message">{message}</p>}
+
+          <div className="form-footer">
+            <p>
+              Remembered your password?{" "}
+              <span className="switch-form" onClick={() => navigate("/login")}>
+                Login here
+              </span>
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+export default ForgotPasswordPage;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/* Forgot Password Page Specific Styles */
+.forgot-page {
+  width: 100%;
+  min-height: calc(100vh - 80px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  /* 🔹 Reduced top space for better alignment with navbar */
+  padding: 2.5rem 0 2rem 0; 
+  margin-top: 60px;
+
+  background: linear-gradient(135deg, var(--light-gray) 0%, #ffffff 100%);
+}
+
+/* Auth Container */
+.forgot-page .auth-container {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  max-width: 1400px;
+  width: 95%;
+  height: auto;
+  min-height: 650px;
+  background: white;
+  border-radius: 20px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.08);
+  overflow: hidden;
+  margin: 0 auto;
+  border: 1px solid var(--border-gray);
+}
+
+/* Animations */
+.forgot-page .auth-image-section {
+  order: 1;
+  animation: slideInFromLeft 0.8s ease-out;
+}
+
+.forgot-page .auth-form-section {
+  order: 2;
+  animation: slideInFromRight 0.8s ease-out;
+}
+
+@keyframes slideInFromLeft {
+  0% {
+    opacity: 0;
+    transform: translateX(-50px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes slideInFromRight {
+  0% {
+    opacity: 0;
+    transform: translateX(50px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* Form Section */
+.forgot-page .auth-form-section {
+  padding: 3rem 4rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  background: white;
+  height: 100%;
+  min-height: 650px;
+  overflow-y: auto;
+  width: 100%;
+}
+
+/* Image Section */
+.forgot-page .auth-image-section {
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--light-gray);
+  height: 100%;
+  min-height: 650px;
+  width: 100%;
+}
+
+.forgot-page .auth-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  display: block;
+}
+
+/* Header Section */
+.forgot-page .auth-header {
+  margin-bottom: 2.5rem;
+  margin-top: 0.5rem; /* 🔹 Reduced for tighter spacing */
+  text-align: center;
+  width: 100%;
+}
+
+.forgot-page .auth-header h1 {
+  font-size: 2.6rem;
+  color: var(--dark-gray);
+  font-weight: 700;
+  margin-bottom: 0.75rem;
+}
+
+.forgot-page .auth-header p {
+  font-size: 1.1rem;
+  color: var(--medium-gray);
+  margin-bottom: 1.5rem;
+  line-height: 1.5;
+}
+
+/* Back to Home Button */
+.forgot-page .back-btn {
+  background: rgba(4, 115, 234, 0.1);
+  color: var(--primary-blue);
+  border: 2px solid var(--primary-blue);
+  padding: 0.75rem 1.5rem;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  margin-top: 1rem;
+  width: auto;
+  display: inline-block;
+}
+
+.forgot-page .back-btn:hover {
+  background: var(--primary-blue);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(4, 115, 234, 0.2);
+}
+
+/* Form Styles */
+.forgot-page .auth-form {
+  width: 100%;
+  max-width: 450px;
+  margin: 0 auto;
+}
+
+.forgot-page .form-group {
+  margin-bottom: 1.5rem;
+  width: 100%;
+}
+
+.forgot-page .form-group label {
+  display: block;
+  margin-bottom: 0.5rem;
+  color: var(--dark-gray);
+  font-weight: 600;
+  font-size: 0.9rem;
+  text-align: left;
+}
+
+.forgot-page .form-group input {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  border: 2px solid var(--border-gray);
+  border-radius: 8px;
+  font-size: 1rem;
+  transition: all 0.3s ease;
+  box-sizing: border-box;
+  background: var(--light-gray);
+}
+
+.forgot-page .form-group input:focus {
+  outline: none;
+  border-color: var(--primary-blue);
+  box-shadow: 0 0 0 3px rgba(4, 115, 234, 0.1);
+  background: white;
+}
+
+.forgot-page .form-group input::placeholder {
+  color: var(--medium-gray);
+}
+
+/* Submit Button (Reset Password) */
+.forgot-page .submit-btn {
+  width: 100%;
+  padding: 1rem;
+  background: linear-gradient(135deg, var(--primary-blue), var(--secondary-blue));
+  color: black;
+  border: none;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  margin-top: 1rem;
+}
+
+.forgot-page .submit-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(4, 115, 234, 0.3);
+}
+
+.forgot-page .submit-btn:active {
+  transform: translateY(0);
+}
+
+/* Message */
+.forgot-page .message {
+  margin-top: 1.5rem;
+  font-size: 0.95rem;
+  font-weight: 600;
+  text-align: center;
+  color: var(--dark-gray);
+}
+
+/* Footer (Back to Login) */
+.forgot-page .form-footer {
+  margin-top: 2rem;
+  padding-top: 2rem;
+  border-top: 1px solid var(--border-gray);
+  text-align: center;
+  width: 100%;
+}
+
+.forgot-page .form-footer p {
+  color: var(--medium-gray);
+  font-size: 0.9rem;
+}
+
+.forgot-page .switch-form {
+  color: var(--primary-blue);
+  font-weight: 600;
+  cursor: pointer;
+  text-decoration: underline;
+  transition: color 0.3s ease;
+}
+
+.forgot-page .switch-form:hover {
+  color: var(--secondary-blue);
+}
+
+/* Responsive Layouts */
+@media (max-width: 1200px) {
+  .forgot-page .auth-container {
+    max-width: 1200px;
+    width: 95%;
+  }
+
+  .forgot-page .auth-form-section {
+    padding: 3rem 3rem;
+  }
+}
+
+@media (max-width: 1024px) {
+  .forgot-page .auth-container {
+    grid-template-columns: 1fr;
+    height: auto;
+    margin: 1rem;
+    max-width: 90%;
+    min-height: auto;
+  }
+
+  .forgot-page .auth-form-section {
+    padding: 3rem 2rem;
+    order: 2;
+    min-height: auto;
+    animation: none;
+    height: auto;
+  }
+
+  .forgot-page .auth-image-section {
+    order: 1;
+    min-height: 400px;
+    height: 400px;
+    animation: none;
+  }
+
+  .forgot-page .auth-image {
+    min-height: 400px;
+    object-fit: cover;
+  }
+}
+
+@media (max-width: 768px) {
+  .forgot-page {
+    margin-top: 60px;
+    padding: 2rem 0;
+    min-height: calc(100vh - 80px);
+  }
+
+  .forgot-page .auth-container {
+    margin: 0.5rem;
+    height: auto;
+    max-height: none;
+    max-width: 95%;
+    min-height: auto;
+  }
+
+  .forgot-page .auth-form-section {
+    padding: 2rem 1.5rem;
+    height: auto;
+  }
+
+  .forgot-page .auth-header h1 {
+    font-size: 2rem;
+  }
+
+  .forgot-page .auth-image-section {
+    height: 300px;
+    min-height: 300px;
+  }
+
+  .forgot-page .auth-image {
+    min-height: 300px;
+    object-fit: cover;
+  }
+}
+
+@media (max-width: 480px) {
+  .forgot-page .auth-form-section {
+    padding: 1.5rem 1rem;
+  }
+
+  .forgot-page .auth-header h1 {
+    font-size: 1.8rem;
+  }
+
+  .forgot-page .auth-image-section {
+    height: 250px;
+    min-height: 250px;
+  }
+
+  .forgot-page .auth-image {
+    min-height: 250px;
+    object-fit: cover;
+  }
+}
+
+/* Focus Styles */
+.forgot-page .form-group input:focus {
+  outline: 2px solid var(--primary-blue);
+  outline-offset: 2px;
+}
+
+.forgot-page .submit-btn:focus {
+  outline: 2px solid var(--primary-blue);
+  outline-offset: 2px;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import ScImage1 from '../Images/Sc-Image1.jpeg';
+import './Login.css';
+
+function Login() {
+  const navigate = useNavigate();
+
+  // ====== States ======
+  const [role, setRole] = useState('customer');
+  const [username, setUsername] = useState('');
+  const [password, setPassword] = useState('');
+
+  // ====== Static password for demo ======
+  const STATIC_PASSWORD = '1234';
+
+  // ====== Handle Form Submit ======
+  const handleFormSubmit = (e) => {
+    e.preventDefault();
+
+    // 🔸 Basic Validation
+    if (!username.trim() || !password.trim()) {
+      alert('⚠️ Please enter both username and password.');
+      return;
+    }
+
+    // 🔸 Password Check
+    if (password !== STATIC_PASSWORD) {
+      alert('❌ Incorrect password. Try again!');
+      return;
+    }
+
+    // 🔸 Success
+    alert(`✅ Login successful as ${role.toUpperCase()}!`);
+
+    // 🔸 Navigate Based on Role
+    switch (role) {
+      case 'customer':
+        navigate('/customer-dashboard');
+        break;
+      case 'maker':
+        navigate('/maker-dashboard');
+        break;
+      case 'checker':
+        navigate('/checker-dashboard');
+        break;
+      default:
+        navigate('/');
+    }
+  };
+
+  // ====== Navigation Buttons ======
+  const handleSignupClick = () => navigate('/signup');
+  const handleBackToHome = () => navigate('/');
+  const handleForgotPassword = () => navigate('/forgot-password'); // ✅ New function
+
+  // ====== JSX Layout ======
+  return (
+    <div className="auth-page login-page">
+      <div className="auth-container">
+        {/* ===== FORM SECTION ===== */}
+        <div className="auth-form-section">
+          <div className="auth-header">
+            <h1>Welcome Back</h1>
+            <p>Login to access your Standard Chartered account</p>
+            <button className="back-btn" onClick={handleBackToHome}>
+              ← Back to Home
+            </button>
+          </div>
+
+          {/* ===== LOGIN FORM ===== */}
+          <form onSubmit={handleFormSubmit} className="auth-form">
+            {/* Role Dropdown */}
+            <div className="form-group">
+              <label htmlFor="role">Login As</label>
+              <select
+                id="role"
+                className="form-select"
+                value={role}
+                onChange={(e) => setRole(e.target.value)}
+                required
+              >
+                <option value="customer">Customer</option>
+                <option value="maker">Maker</option>
+                <option value="checker">Checker</option>
+              </select>
+            </div>
+
+            {/* Username */}
+            <div className="form-group">
+              <label htmlFor="username">Username</label>
+              <input
+                type="text"
+                id="username"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+                placeholder="Enter your username"
+                required
+              />
+            </div>
+
+            {/* Password */}
+            <div className="form-group">
+              <label htmlFor="password">Password</label>
+              <input
+                type="password"
+                id="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder="Enter your password"
+                required
+              />
+            </div>
+
+            {/* Options */}
+            <div className="form-options">
+              <label className="checkbox-label">
+                <input type="checkbox" /> Remember me
+              </label>
+              <span
+                className="forgot-password"
+                onClick={handleForgotPassword}
+                role="button"
+                tabIndex={0}
+              >
+                Forgot Password?
+              </span>
+            </div>
+
+            {/* Submit Button */}
+            <button type="submit" className="submit-btn">
+              <span className="lock-icon">🔒</span> LOGIN
+            </button>
+          </form>
+
+          {/* ===== Footer Section ===== */}
+          <div className="form-footer">
+            <p>
+              Don’t have an account?{' '}
+              <span className="switch-form" onClick={handleSignupClick}>
+                Sign Up
+              </span>
+            </p>
+          </div>
+        </div>
+
+        {/* ===== IMAGE SECTION ===== */}
+        <div className="auth-image-section">
+          <img
+            src={ScImage1}
+            alt="Standard Chartered Banking"
+            className="auth-image"
+          />
+        </div>
+      </div>
+    </div>
+  );
+}
+
+export default Login;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/* Login Page Specific Styles */
+.login-page {
+  width: 100%;
+  min-height: calc(100vh - 80px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  /* 🔹 Reduced top spacing for better navbar alignment */
+  padding: 2.5rem 0 2rem 0; 
+  margin-top: 60px;
+
+  background: linear-gradient(135deg, var(--light-gray) 0%, #ffffff 100%);
+}
+
+.login-page .auth-container {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  max-width: 1400px;
+  width: 95%;
+  height: auto;
+  min-height: 650px;
+  background: white;
+  border-radius: 20px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.08);
+  overflow: hidden;
+  margin: 0 auto;
+  border: 1px solid var(--border-gray);
+}
+
+.login-page .auth-image-section {
+  order: 1;
+  animation: slideInFromLeft 0.8s ease-out;
+}
+
+.login-page .auth-form-section {
+  order: 2;
+  animation: slideInFromRight 0.8s ease-out;
+}
+
+/* Login Form Section */
+.login-page .auth-form-section {
+  padding: 3rem 4rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  background: white;
+  height: 100%;
+  min-height: 650px;
+  overflow-y: auto;
+  width: 100%;
+}
+
+@keyframes slideInFromLeft {
+  0% {
+    opacity: 0;
+    transform: translateX(-50px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes slideInFromRight {
+  0% {
+    opacity: 0;
+    transform: translateX(50px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* Login Image Section */
+.login-page .auth-image-section {
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--light-gray);
+  height: 100%;
+  min-height: 650px;
+  width: 100%;
+}
+
+.login-page .auth-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  display: block;
+}
+
+/* Login Header */
+.login-page .auth-header {
+  margin-bottom: 2.5rem;
+  margin-top: 0.5rem; /* 🔹 Reduced for tighter layout */
+  text-align: center;
+  width: 100%;
+}
+
+.login-page .auth-header h1 {
+  font-size: 2.6rem;
+  color: var(--dark-gray);
+  font-weight: 700;
+  margin-bottom: 0.75rem;
+}
+
+.login-page .auth-header p {
+  font-size: 1.1rem;
+  color: var(--medium-gray);
+  margin-bottom: 1.5rem;
+  line-height: 1.5;
+}
+
+/* Login Back Button */
+.login-page .back-btn {
+  background: rgba(4, 115, 234, 0.1);
+  color: var(--primary-blue);
+  border: 2px solid var(--primary-blue);
+  padding: 0.75rem 1.5rem;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  margin-top: 1.2rem;
+  width: auto;
+  display: inline-block;
+}
+
+.login-page .back-btn:hover {
+  background: var(--primary-blue);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(4, 115, 234, 0.2);
+}
+
+/* Login Form Styles */
+.login-page .auth-form {
+  width: 100%;
+  max-width: 450px;
+  margin: 0 auto;
+}
+
+.login-page .form-group {
+  margin-bottom: 1.5rem;
+  width: 100%;
+}
+
+.login-page .form-group label {
+  display: block;
+  margin-bottom: 0.5rem;
+  color: var(--dark-gray);
+  font-weight: 600;
+  font-size: 0.9rem;
+  text-align: left;
+}
+
+.login-page .form-group input {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  border: 2px solid var(--border-gray);
+  border-radius: 8px;
+  font-size: 1rem;
+  transition: all 0.3s ease;
+  box-sizing: border-box;
+  background: var(--light-gray);
+}
+
+.login-page .form-group input:focus {
+  outline: none;
+  border-color: var(--primary-blue);
+  box-shadow: 0 0 0 3px rgba(4, 115, 234, 0.1);
+  background: white;
+}
+
+.login-page .form-group input::placeholder {
+  color: var(--medium-gray);
+}
+
+/* Form Options */
+.login-page .form-options {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+  width: 100%;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.login-page .checkbox-label {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.9rem;
+  color: var(--medium-gray);
+  cursor: pointer;
+  flex: 1;
+}
+
+.login-page .checkbox-label input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
+  accent-color: var(--primary-blue);
+}
+
+/* Forgot Password Link */
+.login-page .forgot-password {
+  color: var(--primary-blue);
+  cursor: pointer;
+  font-size: 0.9rem;
+  font-weight: 600;
+  text-decoration: underline;
+  transition: color 0.3s ease, transform 0.2s ease;
+}
+
+.login-page .forgot-password:hover,
+.login-page .forgot-password:focus {
+  color: var(--secondary-blue);
+  transform: translateY(-1px);
+  outline: none;
+}
+
+/* Submit Button */
+.login-page .submit-btn {
+  width: 100%;
+  padding: 1rem;
+  background: linear-gradient(135deg, var(--primary-blue), var(--secondary-blue));
+  color: black;
+  border: none;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  margin-top: 1rem;
+}
+
+.login-page .submit-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(4, 115, 234, 0.3);
+}
+
+.login-page .submit-btn:active {
+  transform: translateY(0);
+}
+
+/* Form Footer */
+.login-page .form-footer {
+  margin-top: 2rem;
+  padding-top: 2rem;
+  border-top: 1px solid var(--border-gray);
+  text-align: center;
+  width: 100%;
+}
+
+.login-page .form-footer p {
+  color: var(--medium-gray);
+  font-size: 0.9rem;
+}
+
+.login-page .switch-form {
+  color: var(--primary-blue);
+  font-weight: 600;
+  cursor: pointer;
+  text-decoration: underline;
+  transition: color 0.3s ease;
+}
+
+.login-page .switch-form:hover {
+  color: var(--secondary-blue);
+}
+
+/* Responsive Adjustments */
+@media (max-width: 1200px) {
+  .login-page .auth-container {
+    max-width: 1200px;
+    width: 95%;
+  }
+
+  .login-page .auth-form-section {
+    padding: 3rem 3rem;
+  }
+}
+
+@media (max-width: 1024px) {
+  .login-page .auth-container {
+    grid-template-columns: 1fr;
+    height: auto;
+    margin: 1rem;
+    max-width: 90%;
+    min-height: auto;
+  }
+
+  .login-page .auth-form-section {
+    padding: 3rem 2rem;
+    order: 2;
+    min-height: auto;
+    animation: none;
+    height: auto;
+  }
+
+  .login-page .auth-image-section {
+    order: 1;
+    min-height: 400px;
+    height: 400px;
+    animation: none;
+  }
+
+  .login-page .auth-image {
+    min-height: 400px;
+    object-fit: cover;
+  }
+}
+
+@media (max-width: 768px) {
+  .login-page {
+    margin-top: 60px;
+    padding: 2rem 0;
+    min-height: calc(100vh - 80px);
+  }
+
+  .login-page .auth-container {
+    margin: 0.5rem;
+    height: auto;
+    max-width: 95%;
+    min-height: auto;
+  }
+
+  .login-page .auth-form-section {
+    padding: 2rem 1.5rem;
+    height: auto;
+  }
+
+  .login-page .auth-header h1 {
+    font-size: 2rem;
+  }
+
+  .login-page .form-options {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+  }
+
+  .login-page .auth-image-section {
+    height: 300px;
+    min-height: 300px;
+  }
+
+  .login-page .auth-image {
+    min-height: 300px;
+    object-fit: cover;
+  }
+}
+
+@media (max-width: 480px) {
+  .login-page .auth-form-section {
+    padding: 1.5rem 1rem;
+  }
+
+  .login-page .auth-header h1 {
+    font-size: 1.8rem;
+  }
+
+  .login-page .auth-image-section {
+    height: 250px;
+    min-height: 250px;
+  }
+
+  .login-page .auth-image {
+    min-height: 250px;
+    object-fit: cover;
+  }
+}
+
+/* Focus Styles */
+.login-page .form-group input:focus {
+  outline: 2px solid var(--primary-blue);
+  outline-offset: 2px;
+}
+
+.login-page .submit-btn:focus {
+  outline: 2px solid var(--primary-blue);
+  outline-offset: 2px;
+}
+
+/* Checkbox Styling */
+.login-page .checkbox-label input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  border: 2px solid var(--border-gray);
+  border-radius: 4px;
+  margin-right: 8px;
+  position: relative;
+  cursor: pointer;
+}
+
+.login-page .checkbox-label input[type="checkbox"]:checked {
+  background-color: var(--primary-blue);
+  border-color: var(--primary-blue);
+}
+
+.login-page .checkbox-label input[type="checkbox"]:checked::before {
+  content: '✓';
+  color: white;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 12px;
+  font-weight: bold;
+}
+
+/* Placeholder Styling */
+.login-page .form-group input::placeholder {
+  color: var(--medium-gray);
+  opacity: 0.7;
+  transition: opacity 0.3s ease;
+}
+
+.login-page .form-group input:focus::placeholder {
+  opacity: 0.5;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+import React from 'react';
+import { useNavigate } from 'react-router-dom';
+import ScImage2 from '../Images/Signup_image.jpg';
+import '../SignUp/SignUp.css';
+
+function SignupPage() {
+  const navigate = useNavigate();
+
+  const handleFormSubmit = (e) => {
+    e.preventDefault();
+    alert('Signup form submitted!');
+  };
+
+  const handleLoginClick = () => {
+    navigate('/login');
+  };
+
+  const handleBackToHome = () => {
+    navigate('/');
+  };
+
+  return (
+    <div className="auth-page signup-page">
+      <div className="auth-container">
+        <div className="auth-form-section">
+          <div className="auth-header">
+            <h1>Create Your Account</h1>
+            <p>Join Standard Chartered Bank today</p>
+            <button className="back-btn" onClick={handleBackToHome}>← Back to Home</button>
+          </div>
+          <form onSubmit={handleFormSubmit} className="auth-form">
+            
+            {/* 🔹 Name Fields (First, Middle, Last) */}
+            <div className="form-row three-columns">
+              <div className="form-group">
+                <label htmlFor="firstName">First Name *</label>
+                <input 
+                  type="text" 
+                  id="firstName"
+                  name="firstName" 
+                  placeholder="Enter your first name" 
+                  required 
+                />
+              </div>
+              <div className="form-group">
+                <label htmlFor="middleName">Middle Name</label>
+                <input 
+                  type="text" 
+                  id="middleName"
+                  name="middleName" 
+                  placeholder="Enter your middle name (optional)" 
+                />
+              </div>
+              <div className="form-group">
+                <label htmlFor="lastName">Last Name *</label>
+                <input 
+                  type="text" 
+                  id="lastName"
+                  name="lastName" 
+                  placeholder="Enter your last name" 
+                  required 
+                />
+              </div>
+            </div>
+            
+            <div className="form-group">
+              <label htmlFor="email">Email Address *</label>
+              <input 
+                type="email" 
+                id="email"
+                name="email" 
+                placeholder="Enter your email address" 
+                required 
+              />
+            </div>
+            
+            <div className="form-group">
+              <label htmlFor="phone">Phone Number *</label>
+              <input 
+                type="tel" 
+                id="phone"
+                name="phone" 
+                placeholder="Enter your phone number" 
+                required 
+              />
+            </div>
+            
+            <div className="form-row">
+              <div className="form-group">
+                <label htmlFor="newPassword">Create Password *</label>
+                <input 
+                  type="password" 
+                  id="newPassword"
+                  name="newPassword" 
+                  placeholder="Create a strong password" 
+                  required 
+                />
+              </div>
+              <div className="form-group">
+                <label htmlFor="confirmPassword">Confirm Password *</label>
+                <input 
+                  type="password" 
+                  id="confirmPassword" 
+                  placeholder="Confirm your password" 
+                  required 
+                />
+              </div>
+            </div>
+            
+            <div className="form-options">
+              <label className="checkbox-label">
+                <input type="checkbox" required />
+                I agree to the Terms & Conditions and Privacy Policy
+              </label>
+            </div>
+            
+            <button type="submit" className="submit-btn signup-submit-btn">
+              CREATE ACCOUNT
+            </button>
+          </form>
+          
+          <div className="form-footer">
+            <p>Already have an account? <span className="switch-form" onClick={handleLoginClick}>Login</span></p>
+          </div>
+        </div>
+        <div className="auth-image-section">
+          <img src={ScImage2} alt="Standard Chartered Signup" className="auth-image" />
+        </div>
+      </div>
+    </div>
+  );
+}
+
+export default SignupPage;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/* Signup Page Specific Styles */
+.signup-page {
+  width: 100%;
+  min-height: calc(100vh - 80px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  /* 🔹 Reduced top spacing for consistency */
+  padding: 2.5rem 0 2rem 0;
+  margin-top: 60px;
+
+  background: linear-gradient(135deg, var(--light-gray) 0%, #ffffff 100%);
+}
+
+/* Main Container */
+.signup-page .auth-container {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  max-width: 1400px;
+  width: 95%;
+  height: auto;
+  min-height: 650px;
+  background: white;
+  border-radius: 20px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.08);
+  overflow: hidden;
+  margin: 0 auto;
+  border: 1px solid var(--border-gray);
+}
+
+.signup-page .auth-image-section {
+  order: 1;
+  animation: slideInFromLeft 0.8s ease-out;
+}
+
+.signup-page .auth-form-section {
+  order: 2;
+  animation: slideInFromRight 0.8s ease-out;
+}
+
+/* Signup Form Section */
+.signup-page .auth-form-section {
+  padding: 3rem 4rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  background: white;
+  height: 100%;
+  min-height: 650px;
+  overflow-y: auto;
+  width: 100%;
+}
+
+@keyframes slideInFromLeft {
+  0% {
+    opacity: 0;
+    transform: translateX(-50px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes slideInFromRight {
+  0% {
+    opacity: 0;
+    transform: translateX(50px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* Image Section */
+.signup-page .auth-image-section {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--light-gray);
+  width: 100%;
+  height: 100%;
+  min-height: 650px;
+  overflow: hidden;
+}
+
+.signup-page .auth-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  transition: filter 0.5s ease;
+}
+
+/* Hover Lighting Effect */
+.signup-page .auth-image-section:hover .auth-image {
+  transform: none;
+  filter: brightness(0.95);
+}
+
+.signup-page .auth-image-section::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    to right,
+    rgba(0, 82, 165, 0.2),
+    rgba(0, 154, 147, 0.25)
+  );
+  z-index: 1;
+  pointer-events: none;
+}
+
+/* Header */
+.signup-page .auth-header {
+  margin-bottom: 2.5rem;
+  margin-top: 0.5rem; /* 🔹 Reduced for tighter alignment */
+  text-align: center;
+  width: 100%;
+}
+
+.signup-page .auth-header h1 {
+  font-size: 2.6rem;
+  color: var(--dark-gray);
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+}
+
+.signup-page .auth-header p {
+  font-size: 1.1rem;
+  color: var(--medium-gray);
+  margin-bottom: 1.5rem;
+  line-height: 1.5;
+}
+
+/* Back to Home Button */
+.signup-page .back-btn {
+  background: rgba(4, 115, 234, 0.1);
+  color: var(--primary-blue);
+  border: 2px solid var(--primary-blue);
+  padding: 0.75rem 1.5rem;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  margin-top: 1rem;
+  width: auto;
+  display: inline-block;
+}
+
+.signup-page .back-btn:hover {
+  background: var(--primary-blue);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(4, 115, 234, 0.2);
+}
+
+/* Form Layout */
+.signup-page .auth-form {
+  width: 100%;
+  max-width: 450px;
+  margin: 0 auto;
+}
+
+.signup-page .form-group {
+  margin-bottom: 1.5rem;
+  width: 100%;
+}
+
+.signup-page .form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+  width: 100%;
+}
+
+.signup-page .form-row.three-columns {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 1rem;
+  width: 100%;
+}
+
+@media (max-width: 768px) {
+  .signup-page .form-row.three-columns {
+    grid-template-columns: 1fr;
+  }
+}
+
+.signup-page .form-group label {
+  display: block;
+  margin-bottom: 0.5rem;
+  color: var(--dark-gray);
+  font-weight: 600;
+  font-size: 0.9rem;
+  text-align: left;
+}
+
+.signup-page .form-group input {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  border: 2px solid var(--border-gray);
+  border-radius: 8px;
+  font-size: 1rem;
+  transition: all 0.3s ease;
+  box-sizing: border-box;
+  background: var(--light-gray);
+}
+
+.signup-page .form-group input:focus {
+  outline: none;
+  border-color: var(--primary-blue);
+  box-shadow: 0 0 0 3px rgba(4, 115, 234, 0.1);
+  background: white;
+}
+
+.signup-page .form-group input::placeholder {
+  color: var(--medium-gray);
+}
+
+/* Checkbox Section */
+.signup-page .form-options {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+  width: 100%;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.signup-page .checkbox-label {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.9rem;
+  color: var(--medium-gray);
+  cursor: pointer;
+  flex: 1;
+}
+
+.signup-page .checkbox-label input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
+  accent-color: var(--primary-blue);
+}
+
+/* Submit Button */
+.signup-page .signup-submit-btn {
+  width: 100%;
+  padding: 1rem;
+  background: linear-gradient(135deg, var(--primary-green), var(--secondary-green));
+  color: black;
+  border: none;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  margin-top: 1.5rem;
+}
+
+.signup-page .signup-submit-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(56, 210, 0, 0.3);
+}
+
+.signup-page .signup-submit-btn:active {
+  transform: translateY(0);
+}
+
+/* Footer */
+.signup-page .form-footer {
+  margin-top: 2rem;
+  padding-top: 2rem;
+  border-top: 1px solid var(--border-gray);
+  text-align: center;
+  width: 100%;
+}
+
+.signup-page .form-footer p {
+  color: var(--medium-gray);
+  font-size: 0.9rem;
+}
+
+.signup-page .switch-form {
+  color: var(--primary-blue);
+  font-weight: 600;
+  cursor: pointer;
+  text-decoration: underline;
+  transition: color 0.3s ease;
+}
+
+.signup-page .switch-form:hover {
+  color: var(--secondary-blue);
+}
+
+/* Responsive Adjustments */
+@media (max-width: 1200px) {
+  .signup-page .auth-container {
+    max-width: 1200px;
+    width: 95%;
+  }
+
+  .signup-page .auth-form-section {
+    padding: 3rem 3rem;
+  }
+}
+
+@media (max-width: 1024px) {
+  .signup-page .auth-container {
+    grid-template-columns: 1fr;
+    height: auto;
+    margin: 1rem;
+    max-width: 90%;
+    min-height: auto;
+  }
+
+  .signup-page .auth-form-section {
+    padding: 3rem 2rem;
+    order: 2;
+    min-height: auto;
+    animation: none;
+    height: auto;
+  }
+
+  .signup-page .auth-image-section {
+    order: 1;
+    min-height: 400px;
+    height: 400px;
+    animation: none;
+  }
+
+  .signup-page .auth-image {
+    min-height: 400px;
+    object-fit: cover;
+  }
+}
+
+@media (max-width: 768px) {
+  .signup-page {
+    margin-top: 60px;
+    padding: 2rem 0;
+    min-height: calc(100vh - 80px);
+  }
+
+  .signup-page .auth-container {
+    margin: 0.5rem;
+    height: auto;
+    max-height: none;
+    max-width: 95%;
+    min-height: auto;
+  }
+
+  .signup-page .auth-form-section {
+    padding: 2rem 1.5rem;
+    height: auto;
+  }
+
+  .signup-page .auth-header h1 {
+    font-size: 2rem;
+  }
+
+  .signup-page .form-row {
+    grid-template-columns: 1fr;
+  }
+
+  .signup-page .auth-image-section {
+    height: 300px;
+    min-height: 300px;
+  }
+
+  .signup-page .auth-image {
+    min-height: 300px;
+    object-fit: cover;
+  }
+}
+
+@media (max-width: 480px) {
+  .signup-page .auth-form-section {
+    padding: 1.5rem 1rem;
+  }
+
+  .signup-page .auth-header h1 {
+    font-size: 1.8rem;
+  }
+
+  .signup-page .auth-image-section {
+    height: 250px;
+    min-height: 250px;
+  }
+
+  .signup-page .auth-image {
+    min-height: 250px;
+    object-fit: cover;
+  }
+}
+
+/* Enhanced Focus Styles */
+.signup-page .form-group input:focus {
+  outline: 2px solid var(--primary-blue);
+  outline-offset: 2px;
+}
+
+.signup-page .signup-submit-btn:focus {
+  outline: 2px solid var(--primary-green);
+  outline-offset: 2px;
+}
+
+/* Custom Checkbox Styling */
+.signup-page .checkbox-label input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  border: 2px solid var(--border-gray);
+  border-radius: 4px;
+  margin-right: 8px;
+  position: relative;
+  cursor: pointer;
+}
+
+.signup-page .checkbox-label input[type="checkbox"]:checked {
+  background-color: var(--primary-blue);
+  border-color: var(--primary-blue);
+}
+
+.signup-page .checkbox-label input[type="checkbox"]:checked::before {
+  content: '✓';
+  color: white;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 12px;
+  font-weight: bold;
+}
+
+/* Placeholder and Password Strength */
+.signup-page .form-group input::placeholder {
+  color: var(--medium-gray);
+  opacity: 0.7;
+  transition: opacity 0.3s ease;
+}
+
+.signup-page .form-group input:focus::placeholder {
+  opacity: 0.5;
+}
+
+.password-strength {
+  margin-top: 0.5rem;
+  font-size: 0.8rem;
+}
+
+.password-strength.weak {
+  color: #E53E3E;
+}
+
+.password-strength.medium {
+  color: #D69E2E;
+}
+
+.password-strength.strong {
+  color: var(--primary-green);
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// src/UseCase1/Main.jsx
+import React from 'react';
+import { Routes, Route } from 'react-router-dom';
+import Navbar from './Navbar/Navbar';
+import HomePage from './HomePage/HomePage';
+import AboutUs from './AboutUs/AboutUs';
+import Login from './Login/Login';
+import SignUp from './SignUp/SignUp';
+import ForgotPasswordPage from './ForgetPassword/ForgotPasswordPage'; // ✅ new import
+import Footer from './Footer/Footer';
+
+function Main() {
+  return (
+    <div className="App">
+      <Navbar />
+      <main className="main-content">
+        <Routes>
+          <Route path="/" element={<HomePage />} />
+          <Route path="/about" element={<AboutUs />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/signup" element={<SignUp />} />
+          <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+        </Routes>
+      </main>
+      <Footer />
+    </div>
+  );
+}
+
+export default Main;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
