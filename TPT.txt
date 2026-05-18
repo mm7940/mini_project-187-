@@ -1,0 +1,64 @@
+Cross-border payments operate across multiple financial institutions and rely heavily on SWIFT message types such as MT103 for payment initiation and MT910 for confirmation.
+Due to this distributed architecture, even minor discrepancies—like missing data or delays in message transmission—can trigger client enquiries.
+
+Currently, enquiry resolution is often handled manually across multiple teams, leading to fragmented ownership and limited visibility.
+This results in increased turnaround time and inconsistent resolution outcomes.
+
+So the core challenge is ensuring that enquiry handling is not only accurate, but also standardized, traceable, and efficient across the lifecycle.
+
+
+
+
+
+
+
+
+
+
+To address these challenges, we implemented CERS as a centralized enquiry management system built on Pega’s case management framework.
+
+Each enquiry is treated as a case, enabling end-to-end lifecycle tracking—from initiation and validation to resolution and closure.
+
+Pega provides key capabilities such as workflow orchestration, SLA-driven processing, and governance through a Maker–Checker model.
+Additionally, the system integrates notification mechanisms to keep stakeholders informed at every critical stage.
+
+This ensures that all enquiries are handled within a structured and controlled environment, acting as a single source of truth
+
+
+
+
+
+
+
+
+
+
+The core strength of CERS lies in its intelligent processing capability driven by business rules and decisioning.
+
+Once a case is created, the system performs validation on payment details, including both structured and unstructured message formats.
+
+Based on predefined rules, a decision engine determines the processing path.
+For low-risk scenarios, Straight Through Processing (STP) is applied, enabling automatic resolution without manual intervention.
+
+For higher-risk or complex cases, the system routes the enquiry for manual review under a controlled workflow.
+
+For example, we implemented threshold-based decisioning, where transactions below a defined limit—such as 500—are processed via STP, while those exceeding the threshold are routed for manual handling.
+
+This approach ensures an optimal balance between automation efficiency and risk control
+
+
+
+
+
+
+
+
+
+From a business perspective, CERS significantly reduces manual effort by automating low-risk scenarios, while ensuring proper controls for high-value transactions.
+
+It improves turnaround time and consistency in resolution, leading to enhanced customer satisfaction.
+Additionally, the system provides full auditability, which is critical for compliance in cross-border payment processing.
+
+Most importantly, the solution is scalable and adaptable, making it suitable for global operations with varying regulatory and operational requirements.
+
+Overall, CERS transforms enquiry resolution from a reactive, manual process into a structured, intelligent, and scalable system.
