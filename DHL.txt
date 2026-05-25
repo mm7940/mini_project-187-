@@ -1,0 +1,53 @@
+Good morning everyone,
+
+I’d like to take a few minutes to share my experience working in the Pega team at Standard Chartered — not just from a development standpoint, but how these experiences helped me understand the bigger picture of delivering efficient and scalable solutions.
+
+During my work across multiple user stories, I started noticing a consistent pattern — most challenges were not purely technical, but were centered around how effectively we manage requirements, design solutions, and collaborate as a team.
+
+This became clear to me during one of my initial user stories related to Non-US Charges and report enhancements.
+
+At the start, the requirement appeared straightforward. However, as we progressed, there were multiple changes in scope — such as updates in the number of reports and lack of clarity around critical elements like STP flags, NSTP reasons, and exit criteria.
+
+This led to frequent back-and-forth discussions to understand the actual requirement. While necessary, it introduced delays and, in some cases, changes even came during unit testing, leading to rework.
+
+That experience made me realize that everything starts with clarity.
+When requirements are clearly defined with proper scenarios and examples at the beginning, it sets a strong foundation and avoids unnecessary iterations later.
+
+As I moved forward, I encountered another type of challenge — this time not related to clarity, but to efficiency in handling recurring changes.
+
+In multiple user stories, we were updating threshold values for different markets and flows like IDA and ROF. While each change was simple, the pattern was repetitive — these updates were happening frequently.
+
+Every time, even for a small change, we had to go through the full cycle of unit testing, SIT, and UAT. Over time, this became a repetitive effort and impacted overall productivity.
+
+This is where my perspective started shifting.
+
+Instead of treating each change as a new task, I began to see it as a recurring business pattern.
+And when something is recurring, the solution should not be repetitive — it should be configurable.
+
+By introducing a configurable or rule-based approach, where threshold values can be managed dynamically, we can significantly reduce development effort, minimize testing cycles, and improve turnaround time.
+
+While these experiences shaped my thinking on design and efficiency, I also observed an important aspect related to team collaboration, especially during the testing phase.
+
+After development, when features moved to SIT and UAT, there were instances where defects were raised directly without prior discussion.
+
+In some cases, these were not actual defects but misunderstandings of expected behavior or scenarios outside the scope of implementation.
+
+At the same time, developers were already working on the next sprint. So addressing these issues led to context switching, which impacted focus and slowed down ongoing development.
+
+This highlighted another key learning for me — delivery is not just about building the right solution, but also about how effectively teams collaborate around it.
+
+A simple improvement, like having a quick validation discussion between tester and developer before raising a defect, can reduce unnecessary cycles, avoid disruptions, and improve overall efficiency.
+
+So if I bring all these experiences together, one clear theme emerges.
+
+Efficient delivery is built on three key pillars:
+
+Clarity at the start
+Scalability in design
+Collaboration across teams
+
+When these three come together, we not only improve development speed, but also enhance quality, reduce rework, and create a more predictable delivery model.
+
+This shift in perspective — from just completing tasks to improving the way we deliver — has been a key learning for me during my time on this project.
+
+Thank you.
