@@ -1,0 +1,53 @@
+Good morning everyone,
+
+I am currently working under Cash’s Payment Investigation hive, specifically on the Client Enquiry Resolution System for cross-border payments, which is built on top of Pega Smart Investigate.
+
+Today, I’d like to share not just how the system operates, but how we can evolve it by aligning with Pega’s latest advancements in the field of AI, particularly around Agentic AI and intelligent workflow orchestration.
+
+Currently, Standard Chartered is leveraging Pega Smart Investigate as the foundational layer, which provides robust capabilities such as case lifecycle management, SLA-driven workflows, and integration with SWIFT MT and MX payment messages. On top of this, we have built the CERS application tailored to our business processes.
+
+From a workflow perspective, the system is highly structured — an enquiry is received, a case is created, it is classified and routed, followed by investigation where MT and MX messages are analyzed, and finally resolved through defined workflows.
+
+This gives us strong control and consistency. However, the key observation is that while the workflow is automated, the decision-making and intelligence are still largely manual and rule-driven.
+
+Now, if we look at Pega’s current direction, the platform is clearly evolving towards an AI-powered, agentic enterprise model.
+
+With capabilities like Pega Blueprint, generative AI, and AI-driven decisioning, Pega is enabling systems to:
+
+Understand business context
+Generate workflows dynamically
+Recommend next-best actions
+Learn continuously from operational data
+
+And importantly, all of this is happening within governed enterprise workflows, ensuring compliance, traceability, and control — which is critical in financial systems like ours.
+
+Building on this, the opportunity for us is not to replace what we have built, but to strategically augment our CERS platform with Agentic AI capabilities.
+
+From an implementation standpoint, we can introduce AI as an intelligence layer across the lifecycle.
+
+At the enquiry stage, AI can interpret client requests using natural language understanding, automatically classify cases, and determine priority, reducing manual triaging effort.
+
+During the investigation phase — which is the most critical part — AI can directly process MT and MX messages, extract structured transaction data, correlate it with historical investigation patterns, and proactively suggest probable root causes along with recommended actions. This essentially transforms investigation from a manual effort into an assisted decision-making process.
+
+In the case management layer, by leveraging Pega’s decisioning capabilities, AI can enable dynamic routing, predict SLA breaches, and optimize workload distribution, making the system more responsive and efficient.
+
+At the resolution stage, generative AI can assist in summarizing investigations and drafting responses, ensuring faster, consistent, and high-quality communication.
+
+Over time, as the system learns from more cases, it can evolve into a predictive and semi-autonomous investigation framework, capable of identifying patterns even before issues escalate.
+
+The key advantage of this approach is that we are not disrupting the existing architecture.
+Pega continues to act as the orchestration and workflow engine, while Agentic AI acts as the intelligence layer that enhances decision-making.
+
+From a business perspective, this transformation can significantly:
+
+Reduce investigation time
+Lower operational effort
+Improve SLA adherence
+Increase scalability
+And enhance overall client experience
+
+To summarize,
+
+We already have a strong foundation with Pega Smart Investigate and our CERS implementation. By aligning with Pega’s AI evolution and introducing Agentic AI thoughtfully, we can move from a process-driven system to an intelligence-driven ecosystem, where the platform not only executes workflows but also assists, learns, and continuously improves.
+
+Thank you.
